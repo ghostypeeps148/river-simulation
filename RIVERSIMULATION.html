@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/addons/p5.sound.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="utf-8" />
+    <style>
+            .main-title {font-family: "Roboto"; text-align: center; color: salmon}
+            body {background-color: #345d78}
+            canvas {padding: 0;  margin: auto; display: block; width: 800px;}
+    </style>
+    <title>River Simulation (alpha)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <h2 class="main-title">River Simulation</h2>
+    <script>
+      const W=1000;const H=1000;const RES=8;const EROSION=100;let particle=[];let colors;let compare=(a,b)=>{if(a[1].elevation<b[1].elevation){return 1}if(a[1].elevation>b[1].elevation){return -1}return 0};function setup(){createCanvas(W,H);background(220);for(let i=0;i<W/RES;i+=1){particle.push([]);for(let j=0;j<H/RES;j+=1){let n=noise(0.01*i,0.01*j)*20;particle[i].push({wall:i==0||j==0||i==H/RES-1||j==H/RES-1,elevation:n,density:max(0,7-n),velocity:0})}}colors={water:color(0,0,127),sand:color(198,196,36),wall:color(127),red:color(255,0,0)};frameRate(20)}function draw(){background(colors.sand);let hovered_part;let newCells=structuredClone(particle);for(let i=0;i<W/RES;i+=1){for(let j=0;j<H/RES;j+=1){noStroke();if(particle[i][j].density>0){fill(color(0,0,127,(particle[i][j].density-0.05)*255));square(i*RES,j*RES,RES)}let part=particle[i][j];let new_part_reference=newCells[i][j];if(floor(mouseX/RES)==i&&floor(mouseY/RES)==j){hovered_part=part}if(part.wall){fill(color(127));square(i*RES,j*RES,RES);continue};if(random()<0.00001){new_part_reference.density+=1;continue}if(part.density>0){let neighbors=[particle[i][j+1],particle[i+1][j],particle[i][j-1],particle[i-1][j],part];let write=[newCells[i][j+1],newCells[i+1][j],newCells[i][j-1],newCells[i-1][j],new_part_reference];let deno=0;for(const x of neighbors){let delta=(part.elevation+part.density)-(x.elevation+x.density);if(!x.wall&&delta>=0){deno+=1}}write.map((x)=>{let delta=(part.elevation+part.density)-(x.elevation+x.density);if(!x.wall&&delta>=0){x.density+=delta/deno;new_part_reference.density-=delta/deno;new_part_reference.elevation-=abs(delta/EROSION)}})}}}particle=newCells;fill(255,0,0);if(hovered_part){text(" WQ: "+hovered_part.density+" SQ: "+hovered_part.elevation+" Vel: "+hovered_part.velocity,50,50)}}
+    </script>
+    <a href="https://deltarune.com/lancer">.</a>
+  </body>
+</html>
